@@ -38,9 +38,9 @@
 # Cmake/build specific
 cmake-build-debug
 cmake-build-debug/*
-CMakeFiles
-CMakeFiles/*
-CMakeCache.txt
-Makefile
-cmake_install.cmake
-WebServer
+build/CMakeFiles
+build/CMakeFiles/*
+build/CMakeCache.txt
+build/Makefile
+build/cmake_install.cmake
+build/WebServer

@@ -1,0 +1,11 @@
+# Editor Specific
+.idea
+.idea/*
+
+# Cmake/build specific
+build/CMakeCache.txt
+build/cmake_install.cmake
+build/Makefile
+build/WebServer
+build/CMakeFiles
+build/CMakeFiles/*
