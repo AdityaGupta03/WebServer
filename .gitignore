@@ -44,3 +44,7 @@ build/CMakeCache.txt
 build/Makefile
 build/cmake_install.cmake
 build/WebServer
+
+# Build log files
+build/log_build_cmake
+build/log_build_make

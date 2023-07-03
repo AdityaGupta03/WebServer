@@ -32,11 +32,7 @@ int main(int argc, char **argv) {
     cout << "Port: " << port << endl;
 
     // Create and start webserver service
-    WebServer *server;
-    server = new WebServer(port);
-    int err = server->startServer();
-    if (err == -1) exit(EXIT_FAILURE); // Web server failure
-
-    return 0;
+    auto server = new WebServer(port);
+    server->startServer();
 
 }

@@ -2,7 +2,9 @@
 
 ## Description
 
-A simple HTTP WebServer in C++.
+A simple HTTP WebServer in C++ that sends the time to clients.
+
+Note: For a more complex http web server, please request access to code due to plagiarism concerns.
 
 Note: Docker containerization not currently supported/setup.
 

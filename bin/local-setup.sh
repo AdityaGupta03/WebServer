@@ -1,14 +1,27 @@
 #!/bin/bash
 
-echo "Building C++ WebServer"
-echo
+echo "Building C++ WebServer..."
+
+cd ./build
+
+# Create log files
+> log_build_cmake
+> log_build_make
 
 # Builds an executable called "WebServer" from CMakeLists.txt
-cd ./build
-cmake .. && make
+rm WebServer 2> /dev/null
+cmake . &> log_build_cmake
+if [ $? -ne 0 ]; then
+  echo "Error: Cmake. Check \"log_build_cmake\" file..."
+  exit
+fi
+make &> log_build_make
+if [ $? -ne 0 ]; then
+  echo "Error: Make. Check \"log_build_make\" file..."
+  exit
+fi
 
-echo
-echo "Running your WebServer Application:"
+echo "Running your WebServer Application..."
 echo
 
 # If port passed, specify port to program

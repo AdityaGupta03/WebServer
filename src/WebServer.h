@@ -10,11 +10,12 @@
 class WebServer {
     int masterSocket;
     int port;
-    int writeHeaders();
+    int writeRes(int workerSocket);
+    void processReq(int workerSocket);
 
 public:
     WebServer(int p);
-    int startServer();
+    void startServer();
     ~WebServer();
 };
 
