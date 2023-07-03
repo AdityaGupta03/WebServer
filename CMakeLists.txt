@@ -3,8 +3,10 @@ project(WebServer)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(..)
+include_directories(../src)
+include_directories(../index)
 
 add_executable(WebServer
         ../src/server.cpp
-        ../src/server.h)
+        ../src/WebServer.h
+        ../src/WebServer.cpp)
