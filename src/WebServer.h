@@ -10,7 +10,7 @@
 class WebServer {
     int masterSocket;
     int port;
-    int writeRes(int workerSocket);
+    void writeRes(int workerSocket);
     void processReq(int workerSocket);
 
 public:

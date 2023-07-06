@@ -1,10 +1,6 @@
 #include "WebServer.h"
 
 extern "C" void disp(int sig) {
-    if (sig == SIGINT) { // server end
-
-        exit(EXIT_SUCCESS);
-    }
     if (sig == SIGCHLD) { // kill zombies
         while(waitpid(-1, nullptr, WNOHANG));
     }
@@ -91,7 +87,7 @@ void WebServer::processReq(int workerSocket) {
 
 }
 
-int WebServer::writeRes(int workerSocket) {
-    // TODO: Not implemented.
-    return -1;
+void WebServer::writeRes(int workerSocket) {
+    write(workerSocket, "Hello World!", 12);
+    while(true);
 }

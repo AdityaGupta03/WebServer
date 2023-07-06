@@ -2,6 +2,9 @@
 
 echo "Building C++ WebServer..."
 
+# Create build directory and navigate
+rm -rf ./build &> /dev/null
+mkdir ./build &> /dev/null
 cd ./build
 
 # Create log files
@@ -10,7 +13,7 @@ cd ./build
 
 # Builds an executable called "WebServer" from CMakeLists.txt
 rm WebServer 2> /dev/null
-cmake . &> log_build_cmake
+cmake .. &> log_build_cmake
 if [ $? -ne 0 ]; then
   echo "Error: Cmake. Check \"log_build_cmake\" file..."
   exit
@@ -24,12 +27,13 @@ fi
 echo "Running your WebServer Application..."
 echo
 
-# If port passed, specify port to program
+# If port passed, specify port to program and run
 if [ $# -eq 1 ]; then
   ./WebServer $1
 else
   ./WebServer
 fi
 
+# Reset current working directory
 echo
 cd ..
