@@ -33,6 +33,13 @@ void WebServer::startServer() {
     masterSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (masterSocket < 0) {
         std::cerr << "Error: socket" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    int optval = 0;
+    if (setsockopt(masterSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+        std::cerr << "Error: setsockopt" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     struct sockaddr_in serverIP{};
@@ -73,21 +80,32 @@ void WebServer::startServer() {
         if (pid == 0) { // child process
             std::cout << "Child process created. Handling Request..." << std::endl;
             processReq(workerSocket);
-            _exit(EXIT_SUCCESS);
+            close(workerSocket);
         } else if (pid == -1) {
             std::cerr << "Error: fork" << std::endl;
             exit(EXIT_FAILURE);
         }
-
-        close(workerSocket);
     }
 }
 
 void WebServer::processReq(int workerSocket) {
+    // Process request for authentication.
+    // TODO
 
+    // Write current time out to client.
+    auto currTime = std::chrono::system_clock::now();
+    auto tempTime = std::chrono::system_clock::to_time_t(currTime);
+    std::string stringTime = std::ctime(&tempTime);
+    writeRes(workerSocket, stringTime);
+    std::cout << "Wrote: " << stringTime << std::endl;
 }
 
-void WebServer::writeRes(int workerSocket) {
-    write(workerSocket, "Hello World!", 12);
-    while(true);
+void WebServer::writeRes(int workerSocket, std::string payload) {
+    write(workerSocket, "HTTP/1.1 200 OK\r\n", 17);
+    write(workerSocket, "Content-Type: text/html\r\n", 25);
+    write(workerSocket, "Server: SimpleWebServer\r\n", 25);
+    write(workerSocket, "Connection: keep-alive\r\n", 22);
+    write(workerSocket, "\r\n", 2);
+    write(workerSocket, "The current time is:", 12);
+    write(workerSocket, payload.c_str(), payload.size());
 }

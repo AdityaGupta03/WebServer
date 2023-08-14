@@ -1,16 +1,16 @@
+#ifndef WEBSERVER_SERVER_H
+#define WEBSERVER_SERVER_H
+
 #include <sys/socket.h>
 #include <iostream>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <csignal>
 
-#ifndef WEBSERVER_SERVER_H
-#define WEBSERVER_SERVER_H
-
 class WebServer {
     int masterSocket;
     int port;
-    void writeRes(int workerSocket);
+    void writeRes(int workerSocket, std::string payload);
     void processReq(int workerSocket);
 
 public:
