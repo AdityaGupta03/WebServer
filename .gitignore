@@ -34,6 +34,7 @@
 # Editor Specific
 .idea
 .idea/*
+.vscode/*
 
 # Cmake/build specific
 cmake-build-debug
