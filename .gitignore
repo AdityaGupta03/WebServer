@@ -32,9 +32,7 @@
 *.app
 
 # Editor Specific
-.idea
-.idea/*
-.vscode/*
+.zed
 
 # Cmake/build specific
 cmake-build-debug
