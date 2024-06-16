@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <csignal>
+#include <assert.h>
 
 
 using namespace std;
@@ -93,13 +94,19 @@ void startServer(int port)
         int pid = fork();
         if (pid == 0) { // child process
             std::cout << "Child process created. Handling Request..." << std::endl;
-            // processReq(workerSocket);
+            processReq(workerSocket);
             close(workerSocket);
         } else if (pid == -1) {
             std::cerr << "Error: fork" << std::endl;
             exit(EXIT_FAILURE);
         }
     }
+}
+
+
+void processReq(int workerSocket)
+{
+    assert(false); // Not implemented
 }
 
 
@@ -117,7 +124,7 @@ void writeRes(int workerSocket, std::string payload)
 
 int main(int argc, char **argv)
 {
-    cout << "Welcome to C++ HTTP WebServer!" << "\n" << endl;
+    cout << "Welcome to C++ HTTP WebServer!\n" << endl;
 
     int port;
     if (argc == 1) { // No port specified
@@ -134,7 +141,7 @@ int main(int argc, char **argv)
         }
     } else { // Incorrect usage of program
         cout << usage << endl;
-        exit(EXIT_SUCCESS);
+        exit(EXIT_FAILURE);
     }
 
     cout << "Port: " << port << endl;
