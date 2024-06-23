@@ -13,11 +13,10 @@ string usage = "Usage: WebServer [port-number]\n"
                "OR WebServer";
 
 // Functions
-void writeRes(int workerSocket, std::string payload);
+void writeRes(int workerSocket, string payload);
 void processReq(int workerSocket);
 void startServer();
 void initZombieHandler();
-
 
 /*
  * Standard sigaction dispatcher
@@ -39,7 +38,7 @@ void initZombieHandler()
     sigemptyset(&sa_zombie.sa_mask);
     sa_zombie.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa_zombie, nullptr)) {
-        std::cerr << "Error: sigaction" << std::endl;
+        cerr << "Error: sigaction" << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -52,14 +51,14 @@ void startServer(int port)
     // Create master socket to accept connections
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket < 0) {
-        std::cerr << "Error: socket" << std::endl;
+        cerr << "Error: socket" << endl;
         exit(EXIT_FAILURE);
     }
 
     // Set socket options
     int optval = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
-        std::cerr << "Error: setsockopt" << std::endl;
+        cerr << "Error: setsockopt" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -72,37 +71,37 @@ void startServer(int port)
     // Bind master socket to port
     err = bind(serverSocket, (struct sockaddr*)&serverIP, sizeof(serverIP));
     if (err < 0) {
-        std::cerr << "Error: bind" << std::endl;
+        cerr << "Error: bind" << endl;
         exit(EXIT_FAILURE);
     }
 
     err = listen(serverSocket, 1);
     if (err < 0) {
-        std::cerr << "Error: listen" << std::endl;
+        cerr << "Error: listen" << endl;
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Started Server. Waiting for connection...\n\n"
+    cout << "Started Server. Waiting for connection...\n\n"
                  "Expected credentials...\nUsername: aditya\nPassword: aditya\n"
-                 << std::endl;
+                 << endl;
 
     while (true) {
         struct sockaddr_in clientIP;
         socklen_t clientIPLen = sizeof(clientIP);
         int workerSocket = accept(serverSocket, (sockaddr*)(&clientIP), (socklen_t*)(&clientIPLen));
         if (workerSocket < 0) {
-            std::cerr << "Error: accept" << std::endl;
+            cerr << "Error: accept" << endl;
             exit(EXIT_FAILURE);
         }
 
-        std::cout << "Client accepted. Creating new process..." << std::endl;
+        cout << "Client accepted. Creating new process..." << endl;
         switch (fork()) {
             case 0: // Child process
                 processReq(workerSocket);
                 close(workerSocket);
                 _exit(0);
             case -1: // Error occurred
-                std::cerr << "Error: fork" << std::endl;
+                cerr << "Error: fork" << endl;
                 exit(EXIT_FAILURE);
            default: // We are the parent
                 cout << "Child process created. Handling Request..." << endl;
@@ -122,7 +121,7 @@ void processReq(int workerSocket)
 /*
  * Write a message (as HTTP text/html) to the client
  */
-void writeRes(int workerSocket, std::string payload)
+void writeRes(int workerSocket, string payload)
 {
     write(workerSocket, "HTTP/1.1 200 OK\r\n", 17);
     write(workerSocket, "Content-Type: text/html\r\n", 25);
