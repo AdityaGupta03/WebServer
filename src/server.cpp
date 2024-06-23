@@ -1,10 +1,10 @@
 #include <iostream>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <csignal>
 #include <assert.h>
-
 
 using namespace std;
 
@@ -16,9 +16,12 @@ string usage = "Usage: WebServer [port-number]\n"
 void writeRes(int workerSocket, std::string payload);
 void processReq(int workerSocket);
 void startServer();
-void handleZombies();
+void initZombieHandler();
 
 
+/*
+ * Standard sigaction dispatcher
+ */
 extern "C" void disp(int sig)
 {
     if (sig == SIGCHLD) { // kill zombies
@@ -26,21 +29,24 @@ extern "C" void disp(int sig)
     }
 }
 
-
-void handleZombies()
+/*
+ * Create a sigaction handler to catch zombie processes when forking
+ */
+void initZombieHandler()
 {
-    // Create sigaction handler to catch zombie processes on fork
-    struct sigaction sa_z;
-    sa_z.sa_handler = disp;
-    sigemptyset(&sa_z.sa_mask);
-    sa_z.sa_flags = SA_RESTART;
-    if (sigaction(SIGCHLD, &sa_z, nullptr)) {
+    struct sigaction sa_zombie;
+    sa_zombie.sa_handler = disp;
+    sigemptyset(&sa_zombie.sa_mask);
+    sa_zombie.sa_flags = SA_RESTART;
+    if (sigaction(SIGCHLD, &sa_zombie, nullptr)) {
         std::cerr << "Error: sigaction" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
 
-
+/*
+ * Starts the main server - creates a socket, accepts client connections, handles reqs in children
+ */
 void startServer(int port)
 {
     // Create master socket to accept connections
@@ -51,7 +57,7 @@ void startServer(int port)
     }
 
     // Set socket options
-    int optval = 0;
+    int optval = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
         std::cerr << "Error: setsockopt" << std::endl;
         exit(EXIT_FAILURE);
@@ -90,26 +96,32 @@ void startServer(int port)
         }
 
         std::cout << "Client accepted. Creating new process..." << std::endl;
-
-        int pid = fork();
-        if (pid == 0) { // child process
-            std::cout << "Child process created. Handling Request..." << std::endl;
-            processReq(workerSocket);
-            close(workerSocket);
-        } else if (pid == -1) {
-            std::cerr << "Error: fork" << std::endl;
-            exit(EXIT_FAILURE);
+        switch (fork()) {
+            case 0: // Child process
+                processReq(workerSocket);
+                close(workerSocket);
+                _exit(0);
+            case -1: // Error occurred
+                std::cerr << "Error: fork" << std::endl;
+                exit(EXIT_FAILURE);
+           default: // We are the parent
+                cout << "Child process created. Handling Request..." << endl;
         }
+        close(workerSocket);
     }
 }
 
-
+/*
+ * Main function to process/handle the requests from clients
+ */
 void processReq(int workerSocket)
 {
-    assert(false); // Not implemented
+    writeRes(workerSocket, "Hello World!");
 }
 
-
+/*
+ * Write a message (as HTTP text/html) to the client
+ */
 void writeRes(int workerSocket, std::string payload)
 {
     write(workerSocket, "HTTP/1.1 200 OK\r\n", 17);
@@ -117,11 +129,13 @@ void writeRes(int workerSocket, std::string payload)
     write(workerSocket, "Server: SimpleWebServer\r\n", 25);
     write(workerSocket, "Connection: keep-alive\r\n", 22);
     write(workerSocket, "\r\n", 2);
-    write(workerSocket, "The current time is:", 12);
+    write(workerSocket, "Message:", 8);
     write(workerSocket, payload.c_str(), payload.size());
 }
 
-
+/*
+ * Main function - optional port specified as argument (default 8080)
+ */
 int main(int argc, char **argv)
 {
     cout << "Welcome to C++ HTTP WebServer!\n" << endl;
@@ -145,6 +159,8 @@ int main(int argc, char **argv)
     }
 
     cout << "Port: " << port << endl;
-    handleZombies();
+
+    // Prep and start the http server
+    initZombieHandler();
     startServer(port);
 }
